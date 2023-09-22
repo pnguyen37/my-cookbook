@@ -29,29 +29,10 @@ app.use(body_parser_1.default.urlencoded({ extended: false }));
 // ====================================================================
 // Routes
 // ====================================================================
-// TODO: Implement a route handler that returns a list of all posts, ordered by date created.
 app.get("/recipes", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const collection = db.collection("recipes");
     const result = yield collection.find({}).toArray();
     return res.json(result);
-}));
-// TODO: Implement a route handler that creates a new post.
-app.post("/recipes", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const postBodyData = req.body;
-    const collection = db.collection("recipes");
-    const newPost = {
-        image: postBodyData.image,
-        meal: postBodyData.meal,
-        instructions: postBodyData.instructions,
-        rating: postBodyData.rating,
-    };
-    try {
-        yield collection.insertOne(newPost);
-        return res.json(newPost);
-    }
-    catch (e) {
-        return res.status(500).send();
-    }
 }));
 app.get("/recipes/:meal", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const meal = req.params.meal;
@@ -94,92 +75,21 @@ app.patch("/recipes/:recipeID", (req, res) => __awaiter(void 0, void 0, void 0, 
 }));
 app.patch("/recipes/:recipeID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const recipeID = req.params.recipeID;
-    const isLiked = parseFloat(req.body.liked);
+    const isLiked = req.body.liked;
     const collection = db.collection("recipes");
     try {
-        const result = yield collection.updateOne({ _id: new mongodb_1.ObjectId(recipeID) }, { $set: { liked: isLiked } });
-        return res.json(result);
+        const id = new mongodb_1.ObjectId(recipeID);
+        const recipe = yield collection.findOne({ _id: id });
+        const updateRecipe = yield collection.updateOne({ _id: id }, { $set: { liked: isLiked } });
+        return res.json(updateRecipe);
     }
     catch (e) {
-        return res.status(404).send(`no course found with id ${recipeID}`);
+        return res.status(404).send(`no recipe found with id ${recipeID}`);
     }
 }));
-// TODO: Implement a route handler that deletes the post associated with a given postID.
-app.delete("/posts/:postID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: DELETE /posts/{postID}");
-    const postID = req.params.postID;
-    const collection = db.collection("posts");
-    try {
-        const result = yield collection.deleteOne({ _id: new mongodb_1.ObjectId(postID) });
-        return res.json(result);
-    }
-    catch (e) {
-        return res.status(404).send(`no post found with id ${postID}`);
-    }
-}));
-// TODO: Implement a route handler that gets all the comments associated with a given postID.
-app.get("/posts/:postID/comments", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: GET /posts/{postID}/comments");
-    const postID = req.params.postID;
-    const collection = db.collection("comments");
-    try {
-        const result = yield collection
-            .find({ post: new mongodb_1.ObjectId(postID) })
-            .toArray();
-        return res.json(result);
-    }
-    catch (e) {
-        return res
-            .status(404)
-            .send(`no comments for the post found with id ${postID}`);
-    }
-}));
-// TODO: Implement a route handler that gets adds a comment to the post with the given postID.
-app.post("/posts/:postID/comments", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: POST /posts/{postID}/comments");
-    const postID = req.params.postID;
-    const postBodyData = req.body;
-    const collection = db.collection("comments");
-    const newComment = {
-        content: postBodyData.content,
-        post: new mongodb_1.ObjectId(postID),
-        createdAt: new Date(),
-    };
-    try {
-        yield collection.insertOne(newComment);
-        return res.json(newComment);
-    }
-    catch (e) {
-        return res.status(500).send();
-    }
-}));
-// TODO: Implement a route handler that gets a comment associated with the given commentID.
-app.get("/posts/:postID/comments/:commentID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: GET /posts/{postID}/comments/{commentID}");
-    const commentID = req.params.commentID;
-    const collection = db.collection("comments");
-    try {
-        const result = yield collection.findOne({ _id: new mongodb_1.ObjectId(commentID) });
-        return res.json(result);
-    }
-    catch (e) {
-        return res.status(404).send(`no post found with id ${commentID}`);
-    }
-}));
-// TODO: Implement a route handler that deletes a comment associated with the given commentID.
-app.delete("/posts/:postID/comments/:commentID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: DELETE /posts/{postID}/comments");
-    const commentID = req.params.commentID;
-    const collection = db.collection("comments");
-    try {
-        const result = yield collection.deleteOne({ _id: new mongodb_1.ObjectId(commentID) });
-        return res.json(result);
-    }
-    catch (e) {
-        return res.status(404).send(`no comment found with id ${commentID}`);
-    }
-}));
-// TODO: add more endpoints here!
+/**
+ * Populate database, mainly used to quickly test interactions
+ */
 function seedDatabase() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -192,7 +102,27 @@ function seedDatabase() {
                     instructions: "cook",
                     rating: 9.7,
                     allRatings: [9.7],
-                    liked: false,
+                },
+                {
+                    image: "https://source.unsplash.com/O2yNzXdqOu0",
+                    meal: "sushi",
+                    instructions: "roll",
+                    rating: 9.65,
+                    allRatings: [9.65],
+                },
+                {
+                    image: "https://source.unsplash.com/6iqpLKqeaE0",
+                    meal: "cake",
+                    instructions: "bake",
+                    rating: 8.5,
+                    allRatings: [8.5],
+                },
+                {
+                    image: "https://source.unsplash.com/p91GLhQv35o",
+                    meal: "fried chicken",
+                    instructions: "fry",
+                    rating: 9.1,
+                    allRatings: [9.1],
                 },
                 {
                     image: "https://source.unsplash.com/U4vWk_DXOT4",
@@ -200,7 +130,6 @@ function seedDatabase() {
                     instructions: "fry",
                     rating: 9,
                     allRatings: [9],
-                    liked: false,
                 },
                 {
                     image: "https://source.unsplash.com/pJbahi1QEFc",
@@ -208,7 +137,6 @@ function seedDatabase() {
                     instructions: "cook",
                     rating: 9.5,
                     allRatings: [9.5],
-                    liked: false,
                 },
                 {
                     image: "https://source.unsplash.com/z_PfaGzeN9E",
@@ -216,7 +144,13 @@ function seedDatabase() {
                     instructions: "cook",
                     rating: 9.4,
                     allRatings: [9.3],
-                    liked: false,
+                },
+                {
+                    image: "https://source.unsplash.com/flFd8L7_B3g",
+                    meal: "pasta",
+                    instructions: "boil",
+                    rating: 8.9,
+                    allRatings: [8.9],
                 },
                 {
                     image: "https://source.unsplash.com/9Bqiusimq6M",
@@ -224,13 +158,19 @@ function seedDatabase() {
                     instructions: "grill",
                     rating: 8.3,
                     allRatings: [8.3],
-                    liked: false,
+                },
+                {
+                    image: "https://source.unsplash.com/rotFzR9lX0E",
+                    meal: "cake",
+                    instructions: "bake",
+                    rating: 8.2,
+                    allRatings: [8.2],
                 },
             ]);
-            console.log("Database seeded successfully");
+            console.log("Database populated successfully");
         }
         catch (err) {
-            console.log("Error seeding database:", err);
+            console.log("Error populating database:", err);
         }
     });
 }

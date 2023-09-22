@@ -1,13 +1,8 @@
 import RatingCard from "@/components/RatingCard";
 import {
-  Center,
   Heading,
-  Button,
   Container,
-  HStack,
-  Input,
   VStack,
-  Box,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import axios from "axios";

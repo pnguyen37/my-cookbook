@@ -1,6 +1,4 @@
-import {
-  Box, Flex, Text, Divider
-} from "@chakra-ui/react";
+import { Flex, Text, Divider } from "@chakra-ui/react";
 import Link from "next/link";
 
 export default function NavBar() {

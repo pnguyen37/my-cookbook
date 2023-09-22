@@ -21,29 +21,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Routes
 // ====================================================================
 
-// TODO: Implement a route handler that returns a list of all posts, ordered by date created.
 app.get("/recipes", async (req, res) => {
   const collection = db.collection("recipes");
   const result = await collection.find({}).toArray();
   return res.json(result);
-});
-
-// TODO: Implement a route handler that creates a new post.
-app.post("/recipes", async (req, res) => {
-  const postBodyData = req.body;
-  const collection = db.collection("recipes");
-  const newPost = {
-    image: postBodyData.image,
-    meal: postBodyData.meal,
-    instructions: postBodyData.instructions,
-    rating: postBodyData.rating,
-  };
-  try {
-    await collection.insertOne(newPost);
-    return res.json(newPost);
-  } catch (e) {
-    return res.status(500).send();
-  }
 });
 
 app.get("/recipes/:meal", async (req, res) => {
@@ -94,95 +75,25 @@ app.patch("/recipes/:recipeID", async (req, res) => {
 
 app.patch("/recipes/:recipeID", async (req, res) => {
   const recipeID = req.params.recipeID;
-  const isLiked = parseFloat(req.body.liked);
+  const isLiked = req.body.liked;
   const collection = db.collection("recipes");
   try {
-    const result = await collection.updateOne(
-      { _id: new ObjectId(recipeID) },
-      { $set: {liked: isLiked} }
+    const id = new ObjectId(recipeID);
+    const recipe = await collection.findOne({ _id: id });
+
+    const updateRecipe = await collection.updateOne(
+      { _id: id },
+      { $set: { liked : isLiked } }
     );
-    return res.json(result);
+    return res.json(updateRecipe);
   } catch (e) {
-    return res.status(404).send(`no course found with id ${recipeID}`);
+    return res.status(404).send(`no recipe found with id ${recipeID}`);
   }
 });
 
-// TODO: Implement a route handler that deletes the post associated with a given postID.
-app.delete("/posts/:postID", async (req, res) => {
-  // res.send("TODO: DELETE /posts/{postID}");
-  const postID = req.params.postID;
-  const collection = db.collection("posts");
-  try {
-    const result = await collection.deleteOne({ _id: new ObjectId(postID) });
-    return res.json(result);
-  } catch (e) {
-    return res.status(404).send(`no post found with id ${postID}`);
-  }
-});
-
-// TODO: Implement a route handler that gets all the comments associated with a given postID.
-app.get("/posts/:postID/comments", async (req, res) => {
-  // res.send("TODO: GET /posts/{postID}/comments");
-  const postID = req.params.postID;
-  const collection = db.collection("comments");
-  try {
-    const result = await collection
-      .find({ post: new ObjectId(postID) })
-      .toArray();
-    return res.json(result);
-  } catch (e) {
-    return res
-      .status(404)
-      .send(`no comments for the post found with id ${postID}`);
-  }
-});
-
-// TODO: Implement a route handler that gets adds a comment to the post with the given postID.
-app.post("/posts/:postID/comments", async (req, res) => {
-  // res.send("TODO: POST /posts/{postID}/comments");
-  const postID = req.params.postID;
-  const postBodyData = req.body;
-  const collection = db.collection("comments");
-  const newComment = {
-    content: postBodyData.content,
-    post: new ObjectId(postID),
-    createdAt: new Date(),
-  };
-  try {
-    await collection.insertOne(newComment);
-    return res.json(newComment);
-  } catch (e) {
-    return res.status(500).send();
-  }
-});
-
-// TODO: Implement a route handler that gets a comment associated with the given commentID.
-app.get("/posts/:postID/comments/:commentID", async (req, res) => {
-  // res.send("TODO: GET /posts/{postID}/comments/{commentID}");
-  const commentID = req.params.commentID;
-  const collection = db.collection("comments");
-  try {
-    const result = await collection.findOne({ _id: new ObjectId(commentID) });
-    return res.json(result);
-  } catch (e) {
-    return res.status(404).send(`no post found with id ${commentID}`);
-  }
-});
-
-// TODO: Implement a route handler that deletes a comment associated with the given commentID.
-app.delete("/posts/:postID/comments/:commentID", async (req, res) => {
-  // res.send("TODO: DELETE /posts/{postID}/comments");
-  const commentID = req.params.commentID;
-  const collection = db.collection("comments");
-  try {
-    const result = await collection.deleteOne({ _id: new ObjectId(commentID) });
-    return res.json(result);
-  } catch (e) {
-    return res.status(404).send(`no comment found with id ${commentID}`);
-  }
-});
-
-// TODO: add more endpoints here!
+/**
+ * Populate database, mainly used to quickly test interactions
+ */
 async function seedDatabase() {
   try {
     const collection = db.collection("recipes");
@@ -195,7 +106,27 @@ async function seedDatabase() {
         instructions: "cook",
         rating: 9.7,
         allRatings: [9.7],
-        liked: false,
+      },
+      {
+        image: "https://source.unsplash.com/O2yNzXdqOu0",
+        meal: "sushi",
+        instructions: "roll",
+        rating: 9.65,
+        allRatings: [9.65],
+      },
+      {
+        image: "https://source.unsplash.com/6iqpLKqeaE0",
+        meal: "cake",
+        instructions: "bake",
+        rating: 8.5,
+        allRatings: [8.5],
+      },
+      {
+        image: "https://source.unsplash.com/p91GLhQv35o",
+        meal: "fried chicken",
+        instructions: "fry",
+        rating: 9.1,
+        allRatings: [9.1],
       },
       {
         image: "https://source.unsplash.com/U4vWk_DXOT4",
@@ -203,7 +134,6 @@ async function seedDatabase() {
         instructions: "fry",
         rating: 9,
         allRatings: [9],
-        liked: false,
       },
       {
         image: "https://source.unsplash.com/pJbahi1QEFc",
@@ -211,7 +141,6 @@ async function seedDatabase() {
         instructions: "cook",
         rating: 9.5,
         allRatings: [9.5],
-        liked: false,
       },
       {
         image: "https://source.unsplash.com/z_PfaGzeN9E",
@@ -219,7 +148,13 @@ async function seedDatabase() {
         instructions: "cook",
         rating: 9.4,
         allRatings: [9.3],
-        liked: false,
+      },
+      {
+        image: "https://source.unsplash.com/flFd8L7_B3g",
+        meal: "pasta",
+        instructions: "boil",
+        rating: 8.9,
+        allRatings: [8.9],
       },
       {
         image: "https://source.unsplash.com/9Bqiusimq6M",
@@ -227,12 +162,18 @@ async function seedDatabase() {
         instructions: "grill",
         rating: 8.3,
         allRatings: [8.3],
-        liked: false,
+      },
+      {
+        image: "https://source.unsplash.com/rotFzR9lX0E",
+        meal: "cake",
+        instructions: "bake",
+        rating: 8.2,
+        allRatings: [8.2],
       },
     ]);
-    console.log("Database seeded successfully");
+    console.log("Database populated successfully");
   } catch (err) {
-    console.log("Error seeding database:", err);
+    console.log("Error populating database:", err);
   }
 }
 

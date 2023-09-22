@@ -1,8 +1,6 @@
 import {
   Card,
   CardBody,
-  Image,
-  VStack,
   Heading,
   Text,
   Flex,

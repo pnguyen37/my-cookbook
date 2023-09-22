@@ -12,9 +12,8 @@ import {
   SliderFilledTrack,
   SliderThumb,
   Text,
-  Stack,
 } from "@chakra-ui/react";
-import { Button, Input, Textarea, VStack } from "@chakra-ui/react";
+import { Button, Textarea, VStack } from "@chakra-ui/react";
 import axios from "axios";
 
 interface Props {
@@ -28,10 +27,7 @@ const NewPostModal = ({ recipeID, isOpen, onClose }: Props) => {
   const [sliderValue, setSliderValue] = useState(5);
 
   function handleSubmit(e: any) {
-    // Block the default form handler behavior.
     e.preventDefault();
-
-    // Set isLoading to true while we make the API request.
     setIsLoading(true);
 
     axios
@@ -39,13 +35,10 @@ const NewPostModal = ({ recipeID, isOpen, onClose }: Props) => {
         rating: sliderValue,
       })
       .then(function (response) {
-        // handle success
-        console.log(e.target.value)
         onClose();
         window.location.reload();
       })
       .catch(function (error) {
-        // handle error
         console.log(error);
       })
       .then(function () {
@@ -62,7 +55,6 @@ const NewPostModal = ({ recipeID, isOpen, onClose }: Props) => {
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={12}>
-              {/* <Input required name="title" placeholder="Rating" /> */}
               <VStack spacing={6} width="100%">
                 <Text>  Rating: {sliderValue} </Text>
                 <Slider

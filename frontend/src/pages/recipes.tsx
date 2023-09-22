@@ -1,5 +1,4 @@
 import {
-  Center,
   Heading,
   Button,
   Container,
@@ -11,7 +10,6 @@ import {
 } from "@chakra-ui/react";
 import { StarIcon } from "@chakra-ui/icons";
 import { useState, useEffect } from "react";
-import { loadRecipes } from "./api/loadRecipes";
 import { Recipe } from "../interfaces/responses";
 import RecipeCard from "../components/RecipeCard";
 import axios from "axios";
@@ -33,7 +31,6 @@ export default function recipes() {
         setError("Error loading recipes.");
       });
   }
-
 
   useEffect(() => {
     fetchData();

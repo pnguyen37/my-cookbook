@@ -5,5 +5,4 @@ export interface Recipe {
   instructions: string;
   rating: number;
   allRatings: number[];
-  liked: boolean
 }

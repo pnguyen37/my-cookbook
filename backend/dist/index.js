@@ -64,18 +64,6 @@ app.get("/recipes/:meal", (req, res) => __awaiter(void 0, void 0, void 0, functi
         return res.status(404).send(`no recipe found with name ${meal}`);
     }
 }));
-app.get("/posts/:postID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: GET /posts/{postID}");
-    const postID = req.params.postID;
-    const collection = db.collection("posts");
-    try {
-        const result = yield collection.findOne({ _id: new mongodb_1.ObjectId(postID) });
-        return res.json(result);
-    }
-    catch (e) {
-        return res.status(404).send(`no course found with id ${postID}`);
-    }
-}));
 app.get("/ratings", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const collection = db.collection("recipes");
     try {
@@ -104,18 +92,16 @@ app.patch("/recipes/:recipeID", (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(404).send(`no recipe found with id ${recipeID}`);
     }
 }));
-// TODO: Implement a route handler that updates the post associated with a given postID.
-app.patch("/posts/:postID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // res.send("TODO: PATCH /posts/{postID}");
-    const postID = req.params.postID;
-    const data = req.body;
-    const collection = db.collection("posts");
+app.patch("/recipes/:recipeID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const recipeID = req.params.recipeID;
+    const isLiked = parseFloat(req.body.liked);
+    const collection = db.collection("recipes");
     try {
-        const result = yield collection.updateOne({ _id: new mongodb_1.ObjectId(postID) }, { $set: data });
+        const result = yield collection.updateOne({ _id: new mongodb_1.ObjectId(recipeID) }, { $set: { liked: isLiked } });
         return res.json(result);
     }
     catch (e) {
-        return res.status(404).send(`no course found with id ${postID}`);
+        return res.status(404).send(`no course found with id ${recipeID}`);
     }
 }));
 // TODO: Implement a route handler that deletes the post associated with a given postID.
@@ -206,6 +192,7 @@ function seedDatabase() {
                     instructions: "cook",
                     rating: 9.7,
                     allRatings: [9.7],
+                    liked: false,
                 },
                 {
                     image: "https://source.unsplash.com/U4vWk_DXOT4",
@@ -213,6 +200,7 @@ function seedDatabase() {
                     instructions: "fry",
                     rating: 9,
                     allRatings: [9],
+                    liked: false,
                 },
                 {
                     image: "https://source.unsplash.com/pJbahi1QEFc",
@@ -220,6 +208,7 @@ function seedDatabase() {
                     instructions: "cook",
                     rating: 9.5,
                     allRatings: [9.5],
+                    liked: false,
                 },
                 {
                     image: "https://source.unsplash.com/z_PfaGzeN9E",
@@ -227,6 +216,7 @@ function seedDatabase() {
                     instructions: "cook",
                     rating: 9.4,
                     allRatings: [9.3],
+                    liked: false,
                 },
                 {
                     image: "https://source.unsplash.com/9Bqiusimq6M",
@@ -234,6 +224,7 @@ function seedDatabase() {
                     instructions: "grill",
                     rating: 8.3,
                     allRatings: [8.3],
+                    liked: false,
                 },
             ]);
             console.log("Database seeded successfully");

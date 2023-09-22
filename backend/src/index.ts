@@ -57,18 +57,6 @@ app.get("/recipes/:meal", async (req, res) => {
   }
 });
 
-app.get("/posts/:postID", async (req, res) => {
-  // res.send("TODO: GET /posts/{postID}");
-  const postID = req.params.postID;
-  const collection = db.collection("posts");
-  try {
-    const result = await collection.findOne({ _id: new ObjectId(postID) });
-    return res.json(result);
-  } catch (e) {
-    return res.status(404).send(`no course found with id ${postID}`);
-  }
-});
-
 app.get("/ratings", async (req, res) => {
   const collection = db.collection("recipes");
   try {
@@ -104,20 +92,18 @@ app.patch("/recipes/:recipeID", async (req, res) => {
   }
 });
 
-// TODO: Implement a route handler that updates the post associated with a given postID.
-app.patch("/posts/:postID", async (req, res) => {
-  // res.send("TODO: PATCH /posts/{postID}");
-  const postID = req.params.postID;
-  const data = req.body;
-  const collection = db.collection("posts");
+app.patch("/recipes/:recipeID", async (req, res) => {
+  const recipeID = req.params.recipeID;
+  const isLiked = parseFloat(req.body.liked);
+  const collection = db.collection("recipes");
   try {
     const result = await collection.updateOne(
-      { _id: new ObjectId(postID) },
-      { $set: data }
+      { _id: new ObjectId(recipeID) },
+      { $set: {liked: isLiked} }
     );
     return res.json(result);
   } catch (e) {
-    return res.status(404).send(`no course found with id ${postID}`);
+    return res.status(404).send(`no course found with id ${recipeID}`);
   }
 });
 
@@ -209,6 +195,7 @@ async function seedDatabase() {
         instructions: "cook",
         rating: 9.7,
         allRatings: [9.7],
+        liked: false,
       },
       {
         image: "https://source.unsplash.com/U4vWk_DXOT4",
@@ -216,6 +203,7 @@ async function seedDatabase() {
         instructions: "fry",
         rating: 9,
         allRatings: [9],
+        liked: false,
       },
       {
         image: "https://source.unsplash.com/pJbahi1QEFc",
@@ -223,6 +211,7 @@ async function seedDatabase() {
         instructions: "cook",
         rating: 9.5,
         allRatings: [9.5],
+        liked: false,
       },
       {
         image: "https://source.unsplash.com/z_PfaGzeN9E",
@@ -230,6 +219,7 @@ async function seedDatabase() {
         instructions: "cook",
         rating: 9.4,
         allRatings: [9.3],
+        liked: false,
       },
       {
         image: "https://source.unsplash.com/9Bqiusimq6M",
@@ -237,6 +227,7 @@ async function seedDatabase() {
         instructions: "grill",
         rating: 8.3,
         allRatings: [8.3],
+        liked: false,
       },
     ]);
     console.log("Database seeded successfully");
